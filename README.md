@@ -127,20 +127,19 @@ Save the workbook as Canada_Covid_Report.xlsx
 
 
 
-
 //CREATE 3D MAP IN EXCEL - Cities
-Click on Insert and then 3D Map tab
-With the 3D Map window open, click on the Map Labels tab
-For Location click on Add Field and select health_region, change it to City
-For Height select case_id and change it to (Count - Not Blank)
-For Category select health_region
-For Time select date_reported
-For filters add health_region, select all and then uncheck Not Reported
-Hover mouse over the bars to view total cases per city (case_id - Count)
-(Optional) To get a better view of the data click on the 3D Map down arrow to get a better view of the bars. If you don’t see the legends click on the Legends tab
+1. Click on Insert and then 3D Map tab
+2. With the 3D Map window open, click on the Map Labels tab
+3. For Location click on Add Field and select health_region, change it to City
+4. For Height select case_id and change it to (Count - Not Blank)
+5. For Category select health_region
+6. For Time select date_reported
+7. For filters add health_region, select all and then uncheck Not Reported
+8. Hover mouse over the bars to view total cases per city (case_id - Count)
+9. (Optional) To get a better view of the data click on the 3D Map down arrow to get a better view of the bars. If you don’t see the legends click on the Legends tab
 
 //CREATE 3D MAP IN EXCEL - Provinces
-Follow the directions 1-7 in the previous step
-Change Location to province 
-Change Category to province
-Hover mouse over the bars to view total cases per province (case_id - Count)
+1. Follow the directions 1-7 in the previous step
+2. Change Location to province 
+3. Change Category to province
+4. Hover mouse over the bars to view total cases per province (case_id - Count)
