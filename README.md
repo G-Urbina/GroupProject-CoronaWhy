@@ -114,14 +114,14 @@ scp username@your_server_ip:/home/username/000000_0 CanadaCases.csv
  
 //OPEN EXCEL
  
-Open a new blank workbook
-Click on the data tab
-Click on Get Data > From File > From Text/CSV
-Select the CanadaCases.csv file you downloaded, click import
-When you see a preview of the data, click on Transform Data
-Rename the columns from Column1 to Column12 with case_id, provincial_case, age, sex, health_region, province, country, date_report, report_week, travel_yn, locally_acquired
-Click on Close & Load
-Save the workbook as Canada_Covid_Report.xlsx
+1. Open a new blank workbook
+2. Click on the data tab
+3. Click on Get Data > From File > From Text/CSV
+4. Select the CanadaCases.csv file you downloaded, click import
+5. When you see a preview of the data, click on Transform Data
+6. Rename the columns from Column1 to Column12 with case_id, provincial_case, age, sex, health_region, province, country, date_report, report_week, travel_yn, locally_acquired
+7. Click on Close & Load
+8. Save the workbook as Canada_Covid_Report.xlsx
  
  
 
