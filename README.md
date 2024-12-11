@@ -1,5 +1,6 @@
 1.
 //launch git-bash or any terminal you use and login to your server
+
 ssh username@your_server_ip
  
 //download the zip file containing the dataset from GitHub, code should be one line
@@ -8,27 +9,34 @@ wget -O CoronaWhyDataset.zip https://github.com/G-Urbina/GroupProject-CoronaWhy/
 ```
 
 //unzip the file
+
 unzip CoronaWhyDataset.zip
 
-//make sure you have the fcsviles
+//make sure you have the csv files
+
 ls Public*
 
 ----------------------------------------------------------------------
 
 2.
 //create CoronaWhy directory
+
 hdfs dfs -mkdir CoronaWhy
  
 //create four directories inside CoronaWhy for our tables, code should be one line
+
 hdfs dfs -mkdir CoronaWhy/cases CoronaWhy/mortality CoronaWhy/recovered CoronaWhy/testing
  
 //create five directories for our cleaned tables, code should be one line
+
 hdfs dfs -mkdir CoronaWhy/cases_clean CoronaWhy/mortality_clean CoronaWhy/recovered_clean CoronaWhy/combined_death_recovery CoronaWhy/testing_clean
 
 //make sure directories were created
+
 hdfs dfs -ls CoronaWhy
 
 //move unzipped csv files to the first four directories you created
+
 hdfs dfs -put Public_COVID-19_Canada_Cases.csv CoronaWhy/cases
 
 hdfs dfs -put Public_COVID-19_Canada_Mortality.csv CoronaWhy/mortality
@@ -38,6 +46,7 @@ hdfs dfs -put Public_COVID-19_Canada_Recovered.csv CoronaWhy/recovered
 hdfs dfs -put Public_COVID-19_Canada_Testing.csv CoronaWhy/testing
  
 //make sure files were put in the directories
+
 hdfs dfs -ls CoronaWhy/cases
 
 hdfs dfs -ls CoronaWhy/mortality
@@ -52,12 +61,15 @@ hdfs dfs -ls CoronaWhy/testing
 //launch another git-bash or any terminal you use
  
 //login to your server
+
 ssh username@your_server_ip
  
 //use HiveServer2
+
 beeline
  
 //use your directory
+
 use username;
 
 
@@ -87,9 +99,11 @@ STORED AS TEXTFILE LOCATION '/user/username/CoronaWhy/cases'
 TBLPROPERTIES ('skip.header.line.count'='1');
 ```
 //make sure table was created
+
 show tables;
  
 //query should return 10 rows
+
 select * from cases limit 10;
 
  3.2 Cleaned Cases Table
@@ -117,9 +131,11 @@ SELECT
 FROM cases;
 ```
 //make sure table was created
+
 show tables;
  
 //query should return 10 rows
+
 select * from cases_clean limit 10;
 
 3.3 Mortality Table
@@ -146,9 +162,11 @@ STORED AS TEXTFILE LOCATION '/user/username/CoronaWhy/mortality'
 TBLPROPERTIES ('skip.header.line.count'='1');
 ```
 //make sure table was created
+
 show tables;
 
 //query should return 10 rows
+
 select * from mortality limit 10;
 
 3.4 Cleaned Mortality Table
@@ -170,9 +188,11 @@ SELECT
 FROM mortality;
 ```
 //make sure table was created
+
 show tables;
 
 //query should return 10 rows
+
 select * from mortality_clean limit 10;
 
 3.5 Recovered Table
@@ -194,9 +214,11 @@ STORED AS TEXTFILE LOCATION '/user/username/CoronaWhy/recovered'
 TBLPROPERTIES ('skip.header.line.count'='1');
 ```
 //make sure table was created
+
 show tables;
 
 //query should return 10 rows
+
 select * from recovered limit 10;
 
 3.6 Cleaned Recovered Table
@@ -220,9 +242,11 @@ SELECT
 FROM recovered;
 ```
 //make sure table was created
+
 show tables;
 
 //query should return 10 rows
+
 select * from recovered_clean limit 10;
 
 3.7 Combine Mortality and Recovered Table
@@ -244,6 +268,7 @@ STORED AS TEXTFILE
 LOCATION '/user/username/CoronaWhy/combined_death_recovery/';
 ```
 //make sure table was created
+
 show tables;
 
 
@@ -277,6 +302,7 @@ SELECT
 FROM recovered_clean;
 ```
 //query should return 10 rows
+
 select * from combined_death_recovery limit 10;
 
 3.8 Testing Table
@@ -297,9 +323,11 @@ STORED AS TEXTFILE LOCATION '/user/username/CoronaWhy/testing'
 TBLPROPERTIES ('skip.header.line.count'='1');
 ```
 //make sure table was created
+
 show tables;
 
 //query should return 3 rows
+
  select * from testing limit 3;
 
 3.9 Cleaned Testing Table
@@ -341,7 +369,9 @@ SELECT
 FROM testing;
 ```
 //make sure table was created
+
 show tables;
 
 //query should return 3 rows
+
  select * from testing_clean limit 3;
