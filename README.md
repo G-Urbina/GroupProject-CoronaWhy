@@ -74,7 +74,9 @@ use username;
 
 
 3.1 Cases Table
+
 //drop “cases” table if it already exists and create table
+
 !!!!replace username with yours using a text editor for all tables!!!!
 ```
 DROP TABLE IF EXISTS cases;
@@ -107,6 +109,7 @@ show tables;
 select * from cases limit 10;
 
  3.2 Cleaned Cases Table
+ 
 //create clean cases table, remove redundant fields, rename fields, and format date
 ```
 DROP TABLE IF EXISTS cases_clean;
@@ -139,6 +142,7 @@ show tables;
 select * from cases_clean limit 10;
 
 3.3 Mortality Table
+
 //create mortality table
 ```
 DROP TABLE IF EXISTS mortality;
@@ -170,6 +174,7 @@ show tables;
 select * from mortality limit 10;
 
 3.4 Cleaned Mortality Table
+
 //create clean mortality table, remove redundant fields, and format date
 ```
 DROP TABLE IF EXISTS mortality_clean;
@@ -196,6 +201,7 @@ show tables;
 select * from mortality_clean limit 10;
 
 3.5 Recovered Table
+
 //create recovered table
 ```
 DROP TABLE IF EXISTS recovered;
@@ -222,6 +228,7 @@ show tables;
 select * from recovered limit 10;
 
 3.6 Cleaned Recovered Table
+
 //create clean recovered table, remove redundant fields, format dates, and replace “NA”
 ```
 DROP TABLE IF EXISTS recovered_clean;
@@ -250,6 +257,7 @@ show tables;
 select * from recovered_clean limit 10;
 
 3.7 Combine Mortality and Recovered Table
+
 //create combined_death_recovery table
 ```
 DROP TABLE IF EXISTS combined_death_recovery;
@@ -306,6 +314,7 @@ FROM recovered_clean;
 select * from combined_death_recovery limit 10;
 
 3.8 Testing Table
+
 //create testing table
 ```
 DROP TABLE IF EXISTS testing;
@@ -331,6 +340,7 @@ show tables;
  select * from testing limit 3;
 
 3.9 Cleaned Testing Table
+
 //create clean testing table, format date, correct province names, replace null values
 ```
 DROP TABLE IF EXISTS testing_clean;
