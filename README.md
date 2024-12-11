@@ -1,54 +1,72 @@
-
-CoronaWhy Tutorial
-
-
-
-//DOWNLOAD FILES
-//login
+1.
+//launch git-bash or any terminal you use and login to your server
 ssh username@your_server_ip
  
-//download files, code needs to be one line
-wget -O Public_Covid-19_Canada_Cases.csv https://github.com/G-Urbina/GroupProject-CoronaWhy/releases/download/CSV-files/Public_COVID-19_Canada_Cases.csv
- 
-//make sure file was downloaded
-ls
- 
- 
-//MAKE DIRECTORIES
+//download the zip file containing the dataset from GitHub, code should be one line
+```
+wget -O CoronaWhyDataset.zip https://github.com/G-Urbina/GroupProject-CoronaWhy/releases/download/CSV-files/CoronaWhy_Dataset.zip
+```
 
+//unzip the file
+unzip CoronaWhyDataset.zip
+
+//make sure you have the files
+ls Public*
+----------------------------------------------------------------------
+
+2.
+//create CoronaWhy directory
 hdfs dfs -mkdir CoronaWhy
  
-hdfs dfs -mkdir CoronaWhy/cases
+//create four directories inside CoronaWhy for our tables, code should be one line
+hdfs dfs -mkdir CoronaWhy/cases CoronaWhy/mortality CoronaWhy/recovered CoronaWhy/testing
  
-//this directory will be used later to download csv file
-hdfs dfs -mkdir CoronaWhy/cases_dateformat
+//create five directories for our cleaned tables, code should be one line
+hdfs dfs -mkdir CoronaWhy/cases_clean CoronaWhy/mortality_clean CoronaWhy/recovered_clean CoronaWhy/combined_death_recovery CoronaWhy/testing_clean
+
+//make sure directories were created
+hdfs dfs -ls CoronaWhy
+
+//move unzipped csv files to the first four directories you created
+hdfs dfs -put Public_COVID-19_Canada_Cases.csv CoronaWhy/cases
+
+hdfs dfs -put Public_COVID-19_Canada_Mortality.csv CoronaWhy/mortality
+
+hdfs dfs -put Public_COVID-19_Canada_Recovered.csv CoronaWhy/recovered
+
+hdfs dfs -put Public_COVID-19_Canada_Testing.csv CoronaWhy/testing
  
-//move downloaded file
-hdfs dfs -put Public_Covid-19_Canada_Cases.csv CoronaWhy/cases
- 
-//make sure file was put in directory
+//make sure files were put in the directories
 hdfs dfs -ls CoronaWhy/cases
+
+hdfs dfs -ls CoronaWhy/mortality
+
+hdfs dfs -ls CoronaWhy/recovered
+
+hdfs dfs -ls CoronaWhy/testing
+----------------------------------------------------------------------
+
+3.
+//launch another git-bash or any terminal you use
  
- 
-//USE HIVE
-//launch git-bash or any program you use
- 
-//login
+//login to your server
 ssh username@your_server_ip
  
-//use Hive2
+//use HiveServer2
 beeline
  
 //use your directory
 use username;
- 
- 
-//CREATE TABLES
+
+
+3.1 Cases Table
+//drop “cases” table if it already exists and create table
+!!!!replace username with yours using a text editor for all tables!!!!
+```
 DROP TABLE IF EXISTS cases;
- 
-!!!!replace username with yours using a text editor!!!!
-``` 
-CREATE EXTERNAL TABLE IF NOT EXISTS cases(case_id INT, provincial_case INT,
+
+CREATE EXTERNAL TABLE IF NOT EXISTS cases(case_id INT, 
+    provincial_case INT,
     age STRING,
     sex STRING,
     health_region STRING,
@@ -65,31 +83,28 @@ CREATE EXTERNAL TABLE IF NOT EXISTS cases(case_id INT, provincial_case INT,
 ROW FORMAT DELIMITED FIELDS TERMINATED BY ','
 STORED AS TEXTFILE LOCATION '/user/username/CoronaWhy/cases'
 TBLPROPERTIES ('skip.header.line.count'='1');
- ```
-
+```
 //make sure table was created
 show tables;
  
 //query should return 10 rows
 select * from cases limit 10;
 
+ 3.2 Cleaned Cases Table
+//create clean cases table, remove redundant fields, rename fields, and format date
+```
+DROP TABLE IF EXISTS cases_clean;
 
- 
- 
-DROP TABLE IF EXISTS cases_dateformat;
- 
-!!!!replace username with yours using a text editor!!!!
- ```
-CREATE TABLE IF NOT EXISTS cases_dateformat
+CREATE TABLE IF NOT EXISTS cases_clean
 ROW FORMAT DELIMITED FIELDS TERMINATED BY ','
-STORED AS TEXTFILE LOCATION '/user/username/CoronaWhy/cases_dateformat/'
+STORED AS TEXTFILE LOCATION '/user/username/CoronaWhy/cases_clean/'
 AS
 SELECT
     case_id,
     provincial_case,
-    age,
+    age AS age_range,
     sex,
-    health_region,
+    health_region AS city,
     province,
     country,
     from_unixtime(unix_timestamp(date_report ,'dd-MM-yyyy'), 'MM-dd-yyyy') date_report,
@@ -98,51 +113,233 @@ SELECT
     travel_history_country,
     locally_acquired
 FROM cases;
- ```
+```
+//make sure table was created
+show tables;
+ 
+//query should return 10 rows
+select * from cases_clean limit 10;
+
+3.3 Mortality Table
+//create mortality table
+```
+DROP TABLE IF EXISTS mortality;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS mortality (
+    death_id INT,
+    province_death INT,
+    case_id INT,
+    age STRING,
+    sex STRING,
+    health_region STRING,
+    province STRING,
+    country STRING,
+    date_death_report STRING, 
+    death_source STRING,
+    additional_info STRING,
+    additional_source STRING
+)
+ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' 
+STORED AS TEXTFILE LOCATION '/user/username/CoronaWhy/mortality'
+TBLPROPERTIES ('skip.header.line.count'='1');
+```
+//make sure table was created
+show tables;
 
 //query should return 10 rows
-select * from cases_dateformat limit 10;
- 
+select * from mortality limit 10;
+
+3.4 Cleaned Mortality Table
+//create clean mortality table, remove redundant fields, and format date
+```
+DROP TABLE IF EXISTS mortality_clean;
+
+CREATE TABLE IF NOT EXISTS mortality_clean
+ROW FORMAT DELIMITED 
+FIELDS TERMINATED BY ',' 
+STORED AS TEXTFILE 
+LOCATION '/user/username/CoronaWhy/mortality_clean'
+AS
+SELECT 
+    death_id,
+    province,
+    country,
+    from_unixtime(unix_timestamp(date_death_report, 'dd-MM-yyyy'), 'MM-dd-yyyy') AS date_death_report
+FROM mortality;
+```
+//make sure table was created
+show tables;
+
+//query should return 10 rows
+select * from mortality_clean limit 10;
+
+3.5 Recovered Table
+//create recovered table
+```
+DROP TABLE IF EXISTS recovered;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS recovered (
+    date_recovered STRING,
+    province STRING,
+    cumulative_recovered STRING,
+    province_source STRING,
+    source STRING,
+    additional_source STRING
+)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+STORED AS TEXTFILE LOCATION '/user/username/CoronaWhy/recovered'
+TBLPROPERTIES ('skip.header.line.count'='1');
+```
+//make sure table was created
+show tables;
+
+//query should return 10 rows
+select * from recovered limit 10;
+
+3.6 Cleaned Recovered Table
+//create clean recovered table, remove redundant fields, format dates, and replace “NA”
+```
+DROP TABLE IF EXISTS recovered_clean;
+
+CREATE TABLE IF NOT EXISTS recovered_clean
+ROW FORMAT DELIMITED 
+FIELDS TERMINATED BY ',' 
+STORED AS TEXTFILE 
+LOCATION '/user/username/CoronaWhy/recovered_clean/'
+AS 
+SELECT 
+    FROM_UNIXTIME(UNIX_TIMESTAMP(date_recovered, 'dd-MM-yyyy'), 'MM-dd-yyyy') AS date_recovered,
+    province,
+    CASE 
+        WHEN cumulative_recovered = 'NA' THEN 0
+        ELSE cumulative_recovered
+    END AS cumulative_recovered
+FROM recovered;
+```
+//make sure table was created
+show tables;
+
+//query should return 10 rows
+select * from recovered_clean limit 10;
+
+3.7 Combine Mortality and Recovered Table
+//create combined_death_recovery table
+```
+DROP TABLE IF EXISTS combined_death_recovery;
+
+CREATE TABLE IF NOT EXISTS combined_death_recovery (
+    event_date STRING,
+    event_id INT,
+    event_type STRING,
+    event_province STRING,
+    event_country STRING,
+    cumulative_recovered INT
+)
+ROW FORMAT DELIMITED 
+FIELDS TERMINATED BY ',' 
+STORED AS TEXTFILE 
+LOCATION '/user/username/CoronaWhy/combined_death_recovery/';
+```
+//make sure table was created
+show tables;
 
 
- 
-//DOWNLOAD CSV FILE TO LOCAL PC
- 
-//get file and rename it
-hdfs dfs -get CoronaWhy/cases_dateformat/000000_0
- 
-//open another terminal and download file to your pc, replace username with yours
-scp username@your_server_ip:/home/username/000000_0 CanadaCases.csv
- 
- 
-//OPEN EXCEL
- 
-1. Open a new blank workbook
-2. Click on the data tab
-3. Click on Get Data > From File > From Text/CSV
-4. Select the CanadaCases.csv file you downloaded, click import
-5. When you see a preview of the data, click on Transform Data
-6. Rename the columns from Column1 to Column12 with case_id, provincial_case, age, sex, health_region, province, country, date_report, report_week, travel_yn, locally_acquired
-7. Click on Close & Load
-8. Save the workbook as Canada_Covid_Report.xlsx
- 
- 
+//insert fields from the mortality_clean and recovered_clean tables into combined_death_recovered using UNION ALL
+```
+INSERT INTO TABLE combined_death_recovery
+SELECT
+  
+    from_unixtime(unix_timestamp(date_death_report, 'dd-MM-yyyy'), 'MM-dd-yyyy') AS event_date,
+    death_id AS event_id,
+    'Death' AS event_type,
+    province AS event_province,
+    country AS event_country,
+    1 AS cumulative_recovered 
 
+FROM mortality_clean
 
+UNION ALL
 
-//CREATE 3D MAP IN EXCEL - Cities
-1. Click on Insert and then 3D Map tab
-2. With the 3D Map window open, click on the Map Labels tab
-3. For Location click on Add Field and select health_region, change it to City
-4. For Height select case_id and change it to (Count - Not Blank)
-5. For Category select health_region
-6. For Time select date_reported
-7. For filters add health_region, select all and then uncheck Not Reported
-8. Hover mouse over the bars to view total cases per city (case_id - Count)
-9. (Optional) To get a better view of the data click on the 3D Map down arrow to get a better view of the bars. If you don’t see the legends click on the Legends tab
+SELECT
+    
+    from_unixtime(unix_timestamp(date_recovered, 'dd-MM-yyyy'), 'MM-dd-yyyy') AS event_date,      
+    ROW_NUMBER() OVER (ORDER BY date_recovered) + 35 AS event_id, 
+    'Recovery' AS event_type,
+    province AS event_province,
+    'Canada' AS event_country,
+    CASE 
+        WHEN cumulative_recovered = 'NA' THEN 0
+        ELSE CAST(cumulative_recovered AS INT)  
+    END AS cumulative_recovered
+FROM recovered_clean;
+```
+//query should return 10 rows
+select * from combined_death_recovery limit 10;
 
-//CREATE 3D MAP IN EXCEL - Provinces
-1. Follow the directions 1-7 in the previous step
-2. Change Location to province 
-3. Change Category to province
-4. Hover mouse over the bars to view total cases per province (case_id - Count)
+3.8 Testing Table
+//create testing table
+```
+DROP TABLE IF EXISTS testing;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS testing (
+    date_testing STRING,
+    province STRING,
+    cumulative_testing INT,
+    province_source STRING,
+    source STRING
+)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+STORED AS TEXTFILE LOCATION '/user/username/CoronaWhy/testing'
+TBLPROPERTIES ('skip.header.line.count'='1');
+```
+//make sure table was created
+show tables;
+
+//query should return 3 rows
+ select * from testing limit 3;
+
+3.9 Cleaned Testing Table
+//create clean testing table, format date, correct province names, replace null values
+```
+DROP TABLE IF EXISTS testing_clean;
+
+CREATE TABLE testing_clean
+ROW FORMAT DELIMITED 
+FIELDS TERMINATED BY ',' 
+STORED AS TEXTFILE 
+LOCATION '/user/username/CoronaWhy/testing_clean/' 
+
+AS 
+SELECT 
+    CASE
+        WHEN date_testing IS NULL OR TRIM(date_testing) = '' THEN ' ' 
+        ELSE 
+            CASE 
+                WHEN unix_timestamp(date_testing, 'dd-MM-yyyy') IS NOT NULL 
+                THEN from_unixtime(unix_timestamp(date_testing, 'dd-MM-yyyy'), 'MM-dd-yyyy') 
+                ELSE '' 
+            END
+    END AS date_testing,
+
+    CASE
+        WHEN province = 'BC' THEN 'British Columbia'
+        WHEN province = 'NL' THEN 'Newfoundland and Labrador'
+        WHEN province = 'PEI' THEN 'Prince Edward Island'
+        WHEN province = 'NWT' THEN 'Northwest Territories'
+        ELSE province
+    END AS province,
+
+    CASE 
+        WHEN cumulative_testing IS NULL AND (date_testing IS NULL OR TRIM(date_testing) = '') THEN ' ' 
+        WHEN cumulative_testing IS NULL AND date_testing IS NOT NULL THEN '0' 
+        ELSE cumulative_testing 
+    END AS cumulative_testing
+FROM testing;
+```
+//make sure table was created
+show tables;
+
+//query should return 3 rows
+ select * from testing_clean limit 3;
