@@ -15,6 +15,7 @@ ls
  
  
 //MAKE DIRECTORIES
+
 hdfs dfs -mkdir CoronaWhy
  
 hdfs dfs -mkdir CoronaWhy/cases
@@ -46,7 +47,7 @@ use username;
 DROP TABLE IF EXISTS cases;
  
 !!!!replace username with yours using a text editor!!!!
- 
+``` 
 CREATE EXTERNAL TABLE IF NOT EXISTS cases(case_id INT, provincial_case INT,
     age STRING,
     sex STRING,
@@ -64,7 +65,8 @@ CREATE EXTERNAL TABLE IF NOT EXISTS cases(case_id INT, provincial_case INT,
 ROW FORMAT DELIMITED FIELDS TERMINATED BY ','
 STORED AS TEXTFILE LOCATION '/user/username/CoronaWhy/cases'
 TBLPROPERTIES ('skip.header.line.count'='1');
- 
+ ```
+
 //make sure table was created
 show tables;
  
@@ -77,7 +79,7 @@ select * from cases limit 10;
 DROP TABLE IF EXISTS cases_dateformat;
  
 !!!!replace username with yours using a text editor!!!!
- 
+ ```
 CREATE TABLE IF NOT EXISTS cases_dateformat
 ROW FORMAT DELIMITED FIELDS TERMINATED BY ','
 STORED AS TEXTFILE LOCATION '/user/username/CoronaWhy/cases_dateformat/'
@@ -96,7 +98,8 @@ SELECT
     travel_history_country,
     locally_acquired
 FROM cases;
- 
+ ```
+
 //query should return 10 rows
 select * from cases_dateformat limit 10;
  
