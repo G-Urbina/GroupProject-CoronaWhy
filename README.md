@@ -10,8 +10,9 @@ wget -O CoronaWhyDataset.zip https://github.com/G-Urbina/GroupProject-CoronaWhy/
 //unzip the file
 unzip CoronaWhyDataset.zip
 
-//make sure you have the files
+//make sure you have the fcsviles
 ls Public*
+
 ----------------------------------------------------------------------
 
 2.
@@ -44,6 +45,7 @@ hdfs dfs -ls CoronaWhy/mortality
 hdfs dfs -ls CoronaWhy/recovered
 
 hdfs dfs -ls CoronaWhy/testing
+
 ----------------------------------------------------------------------
 
 3.
